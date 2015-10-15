@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.tagdish.dao.repository.DishRepository;
+import com.tagdish.dao.repository.DishSearchRepository;
 import com.tagdish.domain.dto.DishDTO;
 import com.tagdish.domain.dto.RestaurantDTO;
 import com.tagdish.domain.dto.RestaurantDishDTO;
@@ -19,6 +20,8 @@ import com.tagdish.domain.dto.detail.DetailInputDTO;
 import com.tagdish.domain.dto.search.SearchInputDTO;
 import com.tagdish.domain.dto.search.SearchResultDTO;
 import com.tagdish.domain.elasticsearch.Dish;
+import com.tagdish.domain.elasticsearch.DishSearch;
+import com.tagdish.domain.location.Location;
 import com.tagdish.exception.BizServiceException;
 import com.tagdish.service.IDishService;
 import com.tagdish.service.ILocationService;
@@ -39,6 +42,10 @@ public class DishService extends BaseService implements IDishService {
 	
 	@Autowired
 	private DishRepository dishRepository;
+	
+	@Autowired
+	private DishSearchRepository dishSearchRepository;
+	
 	
 	@Value("${calculate.distance.flag}")
 	private boolean calculateDistanceFlag;
@@ -119,7 +126,7 @@ public class DishService extends BaseService implements IDishService {
 		if(dish != null) {
 			
 			restaurantDishDTO = convertToRestaurantDishDTO(dish);
-			calculateDistance(detailInputDTO, dish, restaurantDishDTO);
+			calculateDistance(detailInputDTO, dish.getLocation(), restaurantDishDTO);
 			if(restaurantDishDTO != null) {
 				restaurantDishJson = gson.toJson(restaurantDishDTO);
 			}			
@@ -137,14 +144,14 @@ public class DishService extends BaseService implements IDishService {
 	
 		String searchResultJson = null;
 		List<Long> zipCodeList = null;
-		List<Dish> dishList = null;
+		List<DishSearch> dishSearchList = null;
 		LinkedList<RestaurantDishDTO> restaurantDishDTOList = null;
 		
 		validationService.validateInputDTO(searchInputDTO);
 		zipCodeList =  locationService.getZipCode(searchInputDTO);
 		
-		dishList = dishRepository.findByDishNameContainingAndZipCodeIn(searchInputDTO.getSearchKeyWord(), zipCodeList);
-		restaurantDishDTOList = covertToRestaruantDishDTOList(dishList, searchInputDTO);
+		dishSearchList = dishSearchRepository.findByDishNameContainingAndZipCodeIn(searchInputDTO.getSearchKeyWord(), zipCodeList);
+		restaurantDishDTOList = covertToRestaruantDishDTOList(dishSearchList, searchInputDTO);
 		searchResultJson = createSearchResultJson(restaurantDishDTOList, searchInputDTO);
 		
 		return searchResultJson;
@@ -187,25 +194,25 @@ public class DishService extends BaseService implements IDishService {
 	}
 
 	private LinkedList<RestaurantDishDTO> covertToRestaruantDishDTOList(
-			List<Dish> dishList, SearchInputDTO searchInputDTO) throws BizServiceException {
+			List<DishSearch> dishSearchList, SearchInputDTO searchInputDTO) throws BizServiceException {
 		
 		RestaurantDishDTO restaurantDishDTO = null;
 		int startIndex;
 		LinkedList<RestaurantDishDTO> restaurantDishDTOList = null;
-		List<Dish> dishSubList = null; 
+		List<DishSearch> dishSearchSubList = null; 
 		
 		startIndex = searchInputDTO.getStartIndex();
 		restaurantDishDTOList = new LinkedList<RestaurantDishDTO>();
 		
-		if(dishList != null && dishList.size() > 0) {
+		if(dishSearchList != null && dishSearchList.size() > 0) {
 
-			dishSubList = getSubDishList(dishList, startIndex);
-			if(dishSubList != null && dishSubList.size() > 0) {
+			dishSearchSubList = getSubDishList(dishSearchList, startIndex);
+			if(dishSearchSubList != null && dishSearchSubList.size() > 0) {
 
-				for (Dish dish : dishSubList) {
+				for (DishSearch dishSearch : dishSearchSubList) {
 					
-					restaurantDishDTO = convertToRestaurantDishDTO(dish);
-					calculateDistance(searchInputDTO, dish, restaurantDishDTO);
+					restaurantDishDTO = convertToRestaurantDishDTO(dishSearch);
+					calculateDistance(searchInputDTO, dishSearch.getLocation(), restaurantDishDTO);
 					restaurantDishDTOList.add(restaurantDishDTO);
 				}
 			}			
@@ -213,34 +220,34 @@ public class DishService extends BaseService implements IDishService {
 		return restaurantDishDTOList;
 	}
 	
-	private List<Dish> getSubDishList(List<Dish> dishList, int startIndex) {
+	private List<DishSearch> getSubDishList(List<DishSearch> dishSearchList, int startIndex) {
 		
-		List<Dish> dishSubList = null; 
+		List<DishSearch> dishSearchSubList = null; 
 		
-		int toIndex = caluculateToIndex(dishList, startIndex);
-		int fromIndex = caluculateFromIndex(dishList, startIndex);			
-		dishSubList = dishList.subList(fromIndex, toIndex);
+		int toIndex = caluculateToIndex(dishSearchList, startIndex);
+		int fromIndex = caluculateFromIndex(dishSearchList, startIndex);			
+		dishSearchSubList = dishSearchList.subList(fromIndex, toIndex);
 		
-		return dishSubList;
+		return dishSearchSubList;
 	}
 	
-	private int caluculateFromIndex(List<Dish> dishList, int startIndex) {
+	private <T> int caluculateFromIndex(List<T> list, int startIndex) {
 		
 		int fromIndex = 0;
-		if(dishList.size() < startIndex) {
+		if(list.size() < startIndex) {
 			fromIndex = startIndex;
 		} else {
-			fromIndex = dishList.size() - 1;
+			fromIndex = list.size() - 1;
 		}
 		return fromIndex;
 	}
 	
-	private int caluculateToIndex(List<Dish> dishList, int startIndex) {
+	private <T> int  caluculateToIndex(List<T> list, int startIndex) {
 		
 		int toIndex = 0;
 		
-		if(dishList.size() > (startIndex + searchResultSize)) {
-			toIndex = dishList.size() - 1;
+		if(list.size() > (startIndex + searchResultSize)) {
+			toIndex = list.size() - 1;
 		} else {
 			toIndex = startIndex + searchResultSize;
 		}
@@ -248,7 +255,7 @@ public class DishService extends BaseService implements IDishService {
 		return toIndex;
 	}
 
-	private void calculateDistance(TagDishInputDTO tagDishInputDTO, Dish dish, 
+	private void calculateDistance(TagDishInputDTO tagDishInputDTO, Location location, 
 			RestaurantDishDTO restaurantDishDTO) throws BizServiceException {
 		
 		double distance;
@@ -256,12 +263,31 @@ public class DishService extends BaseService implements IDishService {
 		distance = -1;
 		System.out.println("calculateDistanceFlag" + calculateDistanceFlag);
 		if(calculateDistanceFlag) {
-			distance = locationService.calculateDistance(tagDishInputDTO, dish.getLocation());	
+			distance = locationService.calculateDistance(tagDishInputDTO, location);	
 		}
 		
 		restaurantDishDTO.getRestaurantDTO().setDistance(distance);
 	}
 
+	private RestaurantDishDTO convertToRestaurantDishDTO(DishSearch dishSearch) {
+		
+		RestaurantDishDTO restaurantDishDTO = null;
+		DishDTO dishDTO = null;
+		RestaurantDTO restaurantDTO = null;
+	
+		restaurantDishDTO = new RestaurantDishDTO();
+		dishDTO = new DishDTO();
+		restaurantDTO = new RestaurantDTO();
+		
+		BeanUtils.copyProperties(dishSearch, dishDTO);
+		BeanUtils.copyProperties(dishSearch, restaurantDTO);
+		
+		restaurantDishDTO.setDishDTO(dishDTO);
+		restaurantDishDTO.setRestaurantDTO(restaurantDTO);
+				
+		return restaurantDishDTO;
+	}
+	
 	private RestaurantDishDTO convertToRestaurantDishDTO(Dish dish) {
 		
 		RestaurantDishDTO restaurantDishDTO = null;
@@ -279,7 +305,7 @@ public class DishService extends BaseService implements IDishService {
 		restaurantDishDTO.setRestaurantDTO(restaurantDTO);
 				
 		return restaurantDishDTO;
-	}
+	}	
 
 
 }
