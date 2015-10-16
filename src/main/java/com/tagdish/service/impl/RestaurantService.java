@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.tagdish.constant.TagDishConstant;
+import com.tagdish.constant.TagDishDomainConstant;
 import com.tagdish.dao.repository.RestaurantRepository;
 import com.tagdish.domain.dto.RestaurantDTO;
 import com.tagdish.domain.dto.detail.DetailInputDTO;
@@ -73,6 +75,8 @@ public class RestaurantService extends BaseService implements IRestaurantService
 			
 			restaurantJson = createNoEntityJson();
 		}
+		
+		sendNotification(detailInputDTO, TagDishDomainConstant.VIEW_RESTAURANT_DETAIL_NOTIFY_TYPE);
 		
 		return restaurantJson;
 	}	

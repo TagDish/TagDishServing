@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.tagdish.constant.TagDishDomainConstant;
 import com.tagdish.dao.repository.DishRepository;
 import com.tagdish.dao.repository.DishSearchRepository;
 import com.tagdish.domain.dto.DishDTO;
@@ -38,15 +39,14 @@ public class DishService extends BaseService implements IDishService {
 	private ILocationService locationService;
 	
 	@Autowired
-	private IValidationService validationService;	
-	
+	private IValidationService validationService;
+		
 	@Autowired
 	private DishRepository dishRepository;
 	
 	@Autowired
 	private DishSearchRepository dishSearchRepository;
-	
-	
+		
 	@Value("${calculate.distance.flag}")
 	private boolean calculateDistanceFlag;
 	
@@ -134,6 +134,8 @@ public class DishService extends BaseService implements IDishService {
 			
 			restaurantDishJson = createNoEntityJson();
 		}
+		
+		sendNotification(detailInputDTO, TagDishDomainConstant.VIEW_DISH_DETAIL_NOTIFY_TYPE);
 	
 		return restaurantDishJson;
 	}
@@ -146,13 +148,17 @@ public class DishService extends BaseService implements IDishService {
 		List<Long> zipCodeList = null;
 		List<DishSearch> dishSearchList = null;
 		LinkedList<RestaurantDishDTO> restaurantDishDTOList = null;
+		SearchResultDTO searchResultDTO = null;
 		
 		validationService.validateInputDTO(searchInputDTO);
 		zipCodeList =  locationService.getZipCode(searchInputDTO);
 		
 		dishSearchList = dishSearchRepository.findByDishNameContainingAndZipCodeIn(searchInputDTO.getSearchKeyWord(), zipCodeList);
 		restaurantDishDTOList = covertToRestaruantDishDTOList(dishSearchList, searchInputDTO);
-		searchResultJson = createSearchResultJson(restaurantDishDTOList, searchInputDTO);
+		searchResultDTO = createSearchResultDTO(restaurantDishDTOList, searchInputDTO);
+		searchResultJson = createSearchResultJson(searchResultDTO);
+		
+		sendNotification(searchInputDTO, searchResultDTO, TagDishDomainConstant.SEARCH_NOTIFY_TYPE);
 		
 		return searchResultJson;
 	}
@@ -162,30 +168,27 @@ public class DishService extends BaseService implements IDishService {
 		
 		SearchResultDTO searchResultDTO = null;
 		
-		searchResultDTO = new SearchResultDTO();
-		
-		searchResultDTO.setResultSize(restaurantDishDTOList.size());
-		searchResultDTO.setDishRestaurantList(restaurantDishDTOList);
-		searchResultDTO.setResultToDisplay(restaurantDishDTOList.size());
-		
-		if(searchInputDTO.getTransactionId() == null || searchInputDTO.getTransactionId().trim().length() == 0) {
-			searchInputDTO.setTransactionId(TagDishUtility.getUniqueId());
-		} else {
-			searchInputDTO.setTransactionId(searchInputDTO.getTransactionId());
-		}
+		if(restaurantDishDTOList != null && restaurantDishDTOList.size() > 0) {
+			searchResultDTO = new SearchResultDTO();
+			
+			searchResultDTO.setResultSize(restaurantDishDTOList.size());
+			searchResultDTO.setDishRestaurantList(restaurantDishDTOList);
+			searchResultDTO.setResultToDisplay(restaurantDishDTOList.size());
+			
+			if(searchInputDTO.getTransactionId() == null || searchInputDTO.getTransactionId().trim().length() == 0) {
+				searchInputDTO.setTransactionId(TagDishUtility.getUniqueId());
+			} else {
+				searchInputDTO.setTransactionId(searchInputDTO.getTransactionId());
+			}
+		}	
 		return searchResultDTO;
 	}
-	 
-	private String createSearchResultJson(LinkedList<RestaurantDishDTO> restaurantDishDTOList, 
-			SearchInputDTO searchInputDTO) {
+	
+	private String createSearchResultJson(SearchResultDTO searchResultDTO) {
 		
 		String searchResultJson = null;
-		SearchResultDTO searchResultDTO = null;
-		
-		if(restaurantDishDTOList != null && restaurantDishDTOList.size() > 0) {
+		if(searchResultDTO != null) {
 			
-
-			searchResultDTO = createSearchResultDTO(restaurantDishDTOList, searchInputDTO);
 			searchResultJson = gson.toJson(searchResultDTO);
 		} else {
 			searchResultJson = createNoEntityJson();

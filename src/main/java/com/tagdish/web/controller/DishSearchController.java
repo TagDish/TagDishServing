@@ -36,6 +36,7 @@ public class DishSearchController extends BaseController {
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "startIndex", required = false) int startIndex,
 			@RequestParam(value = "transcationId", required = false) String transcationId,
+			@RequestParam(value = "timestamp", required = false) long timestamp,
 			Model model) {	
 		logger.debug(" DishSearchController .. searchDish()");
 		
@@ -45,7 +46,7 @@ public class DishSearchController extends BaseController {
 		try {
 			logger.debug("DishSearchController .. searchDish .. searchKeyWord .." + searchKeyWord);
 			
-			searchInputDTO = createSearchInputDTO(searchKeyWord, startIndex, lantitude, longtitude, zipCode, city, state, transcationId);
+			searchInputDTO = createSearchInputDTO(searchKeyWord, startIndex, lantitude, longtitude, zipCode, city, state, transcationId, timestamp);
 			responseJson = dishService.searchDish(searchInputDTO);
 		} catch (BizServiceException e) {
 

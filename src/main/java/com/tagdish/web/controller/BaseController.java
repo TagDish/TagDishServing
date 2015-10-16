@@ -43,24 +43,27 @@ public class BaseController {
 	
 	
 	public DetailInputDTO createDetailInputDTO(long id, String lantitude, String longtitude,
-			Long zipCode, String city, String state) {
+			Long zipCode, String city, String state, String transactionId, long timestamp) {
 		
 		DetailInputDTO detailInputDTO = new DetailInputDTO();
 		
 		detailInputDTO.setId(id);
+		detailInputDTO.setTransactionId(transactionId);
+		detailInputDTO.setTimestamp(timestamp);
 		createLocation(lantitude, longtitude, zipCode, city, state, detailInputDTO);
 		
 		return detailInputDTO;
 	}
 	
 	public SearchInputDTO createSearchInputDTO(String searchKeyWord, int startIndex, String lantitude, String longtitude,
-			Long zipCode, String city, String state, String transactionId) {
+			Long zipCode, String city, String state, String transactionId, long timestamp) {
 		
 		SearchInputDTO searchInputDTO = new SearchInputDTO();
 		
 		searchInputDTO.setSearchKeyWord(searchKeyWord);
 		searchInputDTO.setStartIndex(startIndex);
 		searchInputDTO.setTransactionId(transactionId);
+		searchInputDTO.setTimestamp(timestamp);
 		createLocation(lantitude, longtitude, zipCode, city, state, searchInputDTO);
 
 		return searchInputDTO;

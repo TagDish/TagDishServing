@@ -62,7 +62,9 @@ public class RestaurantController extends BaseController {
 			@RequestParam(value = "long", required = false) String longtitude,
 			@RequestParam(value = "zipcode", required = false) Long zipCode,
 			@RequestParam(value = "city", required = false) String city,
-			@RequestParam(value = "state", required = false) String state,				
+			@RequestParam(value = "state", required = false) String state,	
+			@RequestParam(value = "transactionId", required = false) String transactionId,
+			@RequestParam(value = "timestamp", required = false) long timestamp,
 			Model model) {	
 		logger.debug(" RestaurantController .. getRestaurantDetail()");
 		
@@ -72,7 +74,7 @@ public class RestaurantController extends BaseController {
 		
 		try {
 			logger.debug("RestaurantController .. getRestaurantDetail .. id .." + id);
-			detailInputDTO = createDetailInputDTO(id, lantitude, longtitude, zipCode, city, state);
+			detailInputDTO = createDetailInputDTO(id, lantitude, longtitude, zipCode, city, state, transactionId, timestamp);
 			responseJson = restuarantService.getRestaurantDetail(detailInputDTO);
 		} catch (BizServiceException e) {
 
