@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
-import com.tagdish.constant.TagDishConstant;
 import com.tagdish.constant.TagDishDomainConstant;
 import com.tagdish.dao.repository.RestaurantRepository;
 import com.tagdish.domain.dto.RestaurantDTO;

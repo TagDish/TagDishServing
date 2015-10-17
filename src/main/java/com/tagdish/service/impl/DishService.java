@@ -158,7 +158,12 @@ public class DishService extends BaseService implements IDishService {
 		searchResultDTO = createSearchResultDTO(restaurantDishDTOList, searchInputDTO);
 		searchResultJson = createSearchResultJson(searchResultDTO);
 		
-		sendNotification(searchInputDTO, searchResultDTO, TagDishDomainConstant.SEARCH_NOTIFY_TYPE);
+		if(searchInputDTO.getStartIndex() == 0) {
+			sendNotification(searchInputDTO, searchResultDTO, TagDishDomainConstant.SEARCH_NOTIFY_TYPE);	
+		} else {
+			sendNotification(searchInputDTO, searchResultDTO, TagDishDomainConstant.MORE_RESULTS_NOTIFY_TYPE);
+		}
+		
 		
 		return searchResultJson;
 	}
