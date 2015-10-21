@@ -153,11 +153,13 @@ public class DishService extends BaseService implements IDishService {
 		List<DishSearch> dishSearchList = null;
 		LinkedList<RestaurantDishDTO> restaurantDishDTOList = null;
 		SearchResultDTO searchResultDTO = null;
+		long[] zipCodeArray = null;
 		
 		validationService.validateInputDTO(searchInputDTO);
 		zipCodeList =  locationService.getZipCode(searchInputDTO);
 		
-		dishSearchList = dishSearchQueryDSL.fuzzySearchDish(searchInputDTO.getSearchKeyWord(), zipCodeList);
+		zipCodeArray = convertArrayListToArray(zipCodeList);
+		dishSearchList = dishSearchQueryDSL.fuzzySearchDish(searchInputDTO.getSearchKeyWord(), zipCodeArray);
 		restaurantDishDTOList = covertToRestaruantDishDTOList(dishSearchList, searchInputDTO);
 		searchResultDTO = createSearchResultDTO(restaurantDishDTOList, searchInputDTO);
 		searchResultJson = createSearchResultJson(searchResultDTO);
@@ -241,6 +243,17 @@ public class DishService extends BaseService implements IDishService {
 		dishSearchSubList = dishSearchList.subList(fromIndex, toIndex);
 		
 		return dishSearchSubList;
+	}
+	
+	private long[] convertArrayListToArray(List<Long> longlist) {
+		
+		long[] longArray = null;
+		longArray = new long[longlist.size()];
+		int i = 0;
+		for (Long long1 : longlist) {
+			longArray[i++] = long1;
+		}
+		return longArray;
 	}
 	
 	private <T> int caluculateFromIndex(List<T> list, int startIndex) {
