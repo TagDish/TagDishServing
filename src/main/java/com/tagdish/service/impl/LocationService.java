@@ -108,14 +108,21 @@ public class LocationService extends BaseService implements ILocationService {
 	
 	@Override
 	public double distance(String lat1, String lon1, String lat2, String lon2, String unit) {
-		
-		return distance(Double.valueOf(lat1), Double.valueOf(lon1), Double.valueOf(lat2), Double.valueOf(lon2), unit);
+		double distance = -1;
+		if(lat1 != null && lon1 != null && lat2 != null && lon2 != null) {
+			distance = distance(Double.valueOf(lat1), Double.valueOf(lon1), Double.valueOf(lat2), Double.valueOf(lon2), unit);
+		}
+		return distance;
 	}
 	
 	@Override
 	public double distance(double lat1, double lon1, String lat2, String lon2, String unit) {
 		
-		return distance(lat1, lon1, Double.valueOf(lat2), Double.valueOf(lon2), unit);
+		double distance = -1;
+		if(lat2 != null && lon2 != null) {
+			distance = distance(lat1, lon1, Double.valueOf(lat2), Double.valueOf(lon2), unit);
+		}
+		return distance;
 	}
 
 	@Override

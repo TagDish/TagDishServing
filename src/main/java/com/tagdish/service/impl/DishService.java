@@ -258,8 +258,8 @@ public class DishService extends BaseService implements IDishService {
 		
 		int toIndex = 0;
 		
-		if(list.size() > (startIndex + searchResultSize)) {
-			toIndex = list.size() - 1;
+		if(list.size() < (startIndex + searchResultSize)) {
+			toIndex = list.size();
 		} else {
 			toIndex = startIndex + searchResultSize;
 		}
@@ -273,8 +273,8 @@ public class DishService extends BaseService implements IDishService {
 		double distance;
 		
 		distance = -1;
-		System.out.println("calculateDistanceFlag" + calculateDistanceFlag);
-		if(calculateDistanceFlag) {
+
+		if(calculateDistanceFlag && location != null) {
 			distance = locationService.calculateDistance(tagDishInputDTO, location);	
 		}
 		

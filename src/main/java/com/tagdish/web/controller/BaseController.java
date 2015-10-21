@@ -78,7 +78,6 @@ public class BaseController {
 		} else {
 			searchInputDTO.setTimestamp(timestamp);
 		}		
-		searchInputDTO.setTimestamp(timestamp);
 		createLocation(lantitude, longtitude, zipCode, city, state, searchInputDTO);
 
 		return searchInputDTO;
