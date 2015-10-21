@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.tagdish.constant.TagDishDomainConstant;
+import com.tagdish.dao.elasticsearch.DishSearchQueryDSL;
 import com.tagdish.dao.repository.DishRepository;
 import com.tagdish.dao.repository.DishSearchRepository;
 import com.tagdish.domain.dto.DishDTO;
@@ -46,6 +47,9 @@ public class DishService extends BaseService implements IDishService {
 	
 	@Autowired
 	private DishSearchRepository dishSearchRepository;
+	
+	@Autowired
+	private DishSearchQueryDSL dishSearchQueryDSL;
 		
 	@Value("${calculate.distance.flag}")
 	private boolean calculateDistanceFlag;
@@ -153,7 +157,7 @@ public class DishService extends BaseService implements IDishService {
 		validationService.validateInputDTO(searchInputDTO);
 		zipCodeList =  locationService.getZipCode(searchInputDTO);
 		
-		dishSearchList = dishSearchRepository.findByDishNameContainingAndZipCodeIn(searchInputDTO.getSearchKeyWord(), zipCodeList);
+		dishSearchList = dishSearchQueryDSL.fuzzySearchDish(searchInputDTO.getSearchKeyWord(), zipCodeList);
 		restaurantDishDTOList = covertToRestaruantDishDTOList(dishSearchList, searchInputDTO);
 		searchResultDTO = createSearchResultDTO(restaurantDishDTOList, searchInputDTO);
 		searchResultJson = createSearchResultJson(searchResultDTO);

@@ -70,9 +70,11 @@ public class ValidationService extends BaseService implements IValidationService
 	
 	public boolean validateZipCode(Address address) throws BizServiceException {
 		
-		boolean validateZipCode = true;
-		if(address.getZipcode() != null && address.getZipcode().toString().trim().length() != 5) {
+		boolean validateZipCode = false;
+		if(address.getZipcode() != null && address.getZipcode().toString().trim().length() == 5) {
 
+			validateZipCode = true;
+		} else if(address.getZipcode() != null && address.getZipcode().toString().trim().length() != 5) {
 			throw new BizServiceException(TagDishConstant.IMPROPER_ZIP_CODE_LOCATION);
 		}
 		return validateZipCode;
@@ -80,7 +82,7 @@ public class ValidationService extends BaseService implements IValidationService
 	
 	public boolean validateCityAndState(Address address) throws BizServiceException {
 		
-		boolean validateCityAndState = true;
+		boolean validateCityAndState = false;
 		if(address.getCity() != null || address.getState() != null) {
 
 			if(address.getCity() == null || address.getCity().trim().length() == 0){
@@ -94,7 +96,7 @@ public class ValidationService extends BaseService implements IValidationService
 		if(address.getState() != null && address.getState().length() != 2) {
 			throw new BizServiceException(TagDishConstant.IMPROPER_CITY_STATE_LOCATION);
 		}
-		
+		validateCityAndState = true;
 		return validateCityAndState;
 	}
 

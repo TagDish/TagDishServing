@@ -65,7 +65,7 @@ public class DishController extends BaseController {
 			@RequestParam(value = "city", required = false) String city,
 			@RequestParam(value = "state", required = false) String state,	
 			@RequestParam(value = "transactionId", required = false) String transactionId,
-			@RequestParam(value = "timestamp", required = false) long timestamp,
+			@RequestParam(value = "timestamp", required = false) Long timestamp,
 			Model model) {	
 		logger.debug(" DishController .. getDishDetail()");
 		

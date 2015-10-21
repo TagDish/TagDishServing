@@ -43,26 +43,41 @@ public class BaseController {
 	
 	
 	public DetailInputDTO createDetailInputDTO(long id, String lantitude, String longtitude,
-			Long zipCode, String city, String state, String transactionId, long timestamp) {
+			Long zipCode, String city, String state, String transactionId, Long timestamp) {
 		
 		DetailInputDTO detailInputDTO = new DetailInputDTO();
 		
 		detailInputDTO.setId(id);
 		detailInputDTO.setTransactionId(transactionId);
-		detailInputDTO.setTimestamp(timestamp);
+		if(timestamp == null) {
+			detailInputDTO.setTimestamp(System.currentTimeMillis());	
+		} else {
+			detailInputDTO.setTimestamp(timestamp);
+		}
+		
 		createLocation(lantitude, longtitude, zipCode, city, state, detailInputDTO);
 		
 		return detailInputDTO;
 	}
 	
-	public SearchInputDTO createSearchInputDTO(String searchKeyWord, int startIndex, String lantitude, String longtitude,
-			Long zipCode, String city, String state, String transactionId, long timestamp) {
+	public SearchInputDTO createSearchInputDTO(String searchKeyWord, Integer startIndex, String lantitude, String longtitude,
+			Long zipCode, String city, String state, String transactionId, Long timestamp) {
 		
 		SearchInputDTO searchInputDTO = new SearchInputDTO();
 		
 		searchInputDTO.setSearchKeyWord(searchKeyWord);
-		searchInputDTO.setStartIndex(startIndex);
+		if(startIndex == null) {
+			searchInputDTO.setStartIndex(0);
+		} else {
+			searchInputDTO.setStartIndex(startIndex);
+		}
+		
 		searchInputDTO.setTransactionId(transactionId);
+		if(timestamp == null) {
+			searchInputDTO.setTimestamp(System.currentTimeMillis());	
+		} else {
+			searchInputDTO.setTimestamp(timestamp);
+		}		
 		searchInputDTO.setTimestamp(timestamp);
 		createLocation(lantitude, longtitude, zipCode, city, state, searchInputDTO);
 

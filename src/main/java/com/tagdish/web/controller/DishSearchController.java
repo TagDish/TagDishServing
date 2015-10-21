@@ -34,9 +34,9 @@ public class DishSearchController extends BaseController {
 			@RequestParam(value = "zipcode", required = false) Long zipCode,
 			@RequestParam(value = "city", required = false) String city,
 			@RequestParam(value = "state", required = false) String state,
-			@RequestParam(value = "startIndex", required = false) int startIndex,
+			@RequestParam(value = "startIndex", required = false) Integer startIndex,
 			@RequestParam(value = "transcationId", required = false) String transcationId,
-			@RequestParam(value = "timestamp", required = false) long timestamp,
+			@RequestParam(value = "timestamp", required = false) Long timestamp,
 			Model model) {	
 		logger.debug(" DishSearchController .. searchDish()");
 		
