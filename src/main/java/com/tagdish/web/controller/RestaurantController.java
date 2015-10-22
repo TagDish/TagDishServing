@@ -16,14 +16,14 @@ import com.tagdish.exception.BizServiceException;
 import com.tagdish.service.IRestaurantService;
 
 @Controller
-@RequestMapping("/restuarant")
+@RequestMapping("/restaurant")
 public class RestaurantController extends BaseController {
 	
 	private static final Logger logger = LoggerFactory
 			.getLogger(RestaurantController.class);		
 
     @Autowired
-    private IRestaurantService restuarantService;	
+    private IRestaurantService restaurantService;	
     
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
 	public @ResponseBody
@@ -36,7 +36,7 @@ public class RestaurantController extends BaseController {
 		
 		try {
 			logger.debug("RestaurantController .. getRestaurantDetail .. id .." + id);
-			responseJson = restuarantService.getRestaurantDetail(id);
+			responseJson = restaurantService.getRestaurantDetail(id);
 		} catch (BizServiceException e) {
 
 			e.printStackTrace();
@@ -75,7 +75,7 @@ public class RestaurantController extends BaseController {
 		try {
 			logger.debug("RestaurantController .. getRestaurantDetail .. id .." + id);
 			detailInputDTO = createDetailInputDTO(id, lantitude, longtitude, zipCode, city, state, transactionId, timestamp);
-			responseJson = restuarantService.getRestaurantDetail(detailInputDTO);
+			responseJson = restaurantService.getRestaurantDetail(detailInputDTO);
 		} catch (BizServiceException e) {
 
 			e.printStackTrace();
